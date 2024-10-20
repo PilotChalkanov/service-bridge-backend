@@ -13,6 +13,8 @@ python-dotenv = "1.0.1"
 aiohttp="3.10.*"
 quart-bcrypt="0.0.9"
 quart-db="^0.8.3"
+quart-auth="^0.10.1"
+marshmallow-dataclass="^8.7.0"
 
 [tool.poetry.group.test.dependencies]
 black="24.10.0"
@@ -28,3 +30,6 @@ black="24.10.0"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+run-server = "service_bridge.app:run"
