@@ -18,6 +18,7 @@ pytest = "*"
 pytest-azurepipelines = "1.0.5"
 pytest-cov = "4.1.0"
 pytest-asyncio ="0.24.0"
+
 [tool.poetry.group.dev.dependencies]
 black="24.10.0"
 
