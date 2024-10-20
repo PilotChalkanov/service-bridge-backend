@@ -3,9 +3,11 @@ from enum import Enum
 from typing import List, Optional
 from datetime import datetime
 
+
 class RoleType(Enum):
     USER = "user"
     ADMIN = "admin"
+
 
 class PaymentMethodType(Enum):
     card = "card"
@@ -27,6 +29,7 @@ class BaseUserModel:
 @dataclass
 class UserModel(BaseUserModel):
     role: RoleType = field(default=RoleType.USER)
+
 
 @dataclass
 class AdministratorModel(BaseUserModel):
