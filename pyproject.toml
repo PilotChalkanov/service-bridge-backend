@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "service-bridge"
+version = "0.1.0"
+description = ""
+authors = ["PilotChalkanov <nik.chalkanov@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+quart = "^0.19.6"
+psycopg2-binary = "2.9.10"
+
+
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
