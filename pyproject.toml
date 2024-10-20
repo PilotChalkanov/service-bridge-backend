@@ -8,9 +8,11 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.11"
 quart = "^0.19.6"
-psycopg2-binary = "2.9.10"
+asyncpg = "^0.30.0"
 python-dotenv = "1.0.1"
-
+aiohttp="3.10.*"
+quart-bcrypt="0.0.9"
+quart-db="^0.8.3"
 
 [tool.poetry.group.test.dependencies]
 black="24.10.0"
