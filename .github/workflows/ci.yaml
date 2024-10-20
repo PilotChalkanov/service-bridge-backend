@@ -1,4 +1,4 @@
-name: Build, Analyze, Test, Publish
+name: OmniBridge analyze, test and deploy
 permissions:
   contents: write
 on:
