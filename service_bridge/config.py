@@ -2,8 +2,10 @@ import os
 from dotenv import load_dotenv
 from quart import Quart
 from quart_bcrypt import Bcrypt
+from quart_auth import QuartAuth
 
-from db import db
+from auth.auth import auth_blueprint
+from service_bridge.db import db
 
 load_dotenv("./.env")
 
@@ -11,8 +13,6 @@ DB_HOST = os.getenv("DB_HOST")
 DB_PORT = os.getenv("DB_PORT")
 DB_PWD = os.getenv("DB_PWD")
 DB_USER = os.getenv("DB_USER")
-print(DB_USER)
-print(os.getenv("MODE"))
 
 
 class Config:
@@ -36,12 +36,21 @@ class Production(Config):
     BCRYPT_HANDLE_LONG_PASSWORDS = True
 
 
+bcrypt = Bcrypt()
+auth_manager = QuartAuth()
+
+
 def create_app(mode=os.getenv("MODE")):
     """In production create as app = create_app('Production')"""
     app = Quart(__name__)
     app.config.from_object(f"config.{mode}")
-    print(app.config.get("DATABASE_URL"))
+    print(app.config.get("QUART_DB_DATABASE_URL"))
     db.init_app(app)
-    bcrypt = Bcrypt()
+    auth_manager.init_app(app)
     bcrypt.init_app(app)
+
+    from service_bridge.auth.auth import auth_blueprint
+
+    app.register_blueprint(auth_blueprint)
+
     return app

@@ -1,8 +1,7 @@
-from quart import Quart, request, jsonify
-
-from config import create_app
+from db import db
+from service_bridge.config import create_app
 
 app = create_app()
-# Start the app
+
 if __name__ == "__main__":
     app.run()
