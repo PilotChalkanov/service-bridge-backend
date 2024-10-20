@@ -114,9 +114,9 @@ jobs:
       - name: Mypy
         uses: sasanquaneuf/mypy-github-action@releases/v1.3
   test:
-    name: Test & SonarQube
+    name: Test & CodeAnalysis
     needs: [version, mypy, snyk, black]
-    runs-on: [self-hosted, Linux, cicdframework]
+    runs-on: [ubuntu-20.04]
     permissions:
       id-token: write
       contents: read
