@@ -51,7 +51,7 @@ jobs:
       - name: Gitleaks
         uses: gitleaks/gitleaks-action@v2.3.2
         env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   snyk:
     name: Snyk
