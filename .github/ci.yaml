@@ -1,5 +1,5 @@
 name: Build, Analyze, Test, Publish
-
+permissions: read-all
 on:
   push:
     branches:
