@@ -115,7 +115,7 @@ jobs:
         uses: sasanquaneuf/mypy-github-action@releases/v1.3
   test:
     name: Test & CodeAnalysis
-    needs: [version, mypy, snyk, black]
+    needs: [version, mypy, snyk, gitleaks, black]
     runs-on: [ubuntu-20.04]
     permissions:
       id-token: write
