@@ -9,6 +9,7 @@ readme = "README.md"
 python = "^3.11"
 quart = "^0.19.6"
 psycopg2-binary = "2.9.10"
+python-dotenv = "1.0.1"
 
 
 

@@ -1,0 +1,170 @@
+name: Build, Analyze, Test, Publish
+
+on:
+  push:
+    branches:
+      - main
+      - master
+      - develop
+  pull_request:
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:
+
+jobs:
+  version:
+    name: Version & Tag
+    runs-on: [ubuntu-latest]
+    outputs:
+      fullSemVer: ${{ steps.version.outputs.fullSemVer }}
+      majorMinorPatch: ${{ steps.version.outputs.majorMinorPatch }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - uses: gittools/actions/gitversion/setup@v1.1.1
+        name: Install GitVersion
+        with:
+          versionSpec: "5.x"
+      - name: Determine Version
+        id: version
+        uses: gittools/actions/gitversion/execute@v1.1.1
+      - uses: rickstaa/action-create-tag@v1
+        with:
+          tag: ${{ steps.version.outputs.fullSemVer }}
+          tag_exists_error: false
+      - uses: rickstaa/action-create-tag@v1
+        if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'
+        with:
+          tag: ${{ steps.version.outputs.majorMinorPatch }}
+          tag_exists_error: false
+
+  gitleaks:
+    if: 1 == 0
+    name: Gitleaks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Gitleaks
+        uses: gitleaks/gitleaks-action@v2.3.2
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+
+  snyk:
+    name: Snyk
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+      - name: Install Poetry Action
+        uses: snok/install-poetry@v1.3.4
+        with:
+          virtualenvs-in-project: true
+      - run: poetry install --only main
+
+      - name: Run Snyk to check for vulnerabilities
+        uses: snyk/actions/python-3.10@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          command: code test
+
+      - name: Run Snyk to check for vulnerabilities
+        uses: snyk/actions/python-3.10@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          command: monitor
+
+  black:
+    name: Black
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+      - name: Install Poetry Action
+        uses: snok/install-poetry@v1.3.4
+        with:
+          virtualenvs-in-project: true
+      - name: Black
+        uses: jpetrucciani/black-check@24.3.0
+
+  mypy:
+    name: Mypy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+      - name: Install Poetry Action
+        uses: snok/install-poetry@v1.3.4
+        with:
+          virtualenvs-in-project: true
+      - name: Mypy
+        uses: sasanquaneuf/mypy-github-action@releases/v1.3
+  test:
+    name: Test & SonarQube
+    needs: [version, mypy, snyk, black]
+    runs-on: [self-hosted, Linux, cicdframework]
+    permissions:
+      id-token: write
+      contents: read
+      issues: read
+      checks: write
+      pull-requests: write
+    environment: uat
+    steps:
+      - name: Clean Runner workspace
+        uses: AutoModality/action-clean@v1
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Show current directory tree
+        run: pwd | xargs tree
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+      - name: Install Poetry Action
+        uses: snok/install-poetry@v1.3.4
+        with:
+          virtualenvs-in-project: true
+      - run: poetry install --only main,test
+      - run: poetry build
+      - name: Run Unit Tests
+        run: poetry run pytest tests/unittests -v  --junitxml=testresults.xml --cov=./service-bridge-backend --cov-report=xml:coverage.xml
+
+      - name: Run Integration Tests
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
+        run: poetry run pytest tests/integration -v --junitxml=testresults.xml --cov=./service-bridge-backend --cov-append --cov-report=xml:coverage.xml
+
+      - uses: EnricoMi/publish-unit-test-result-action@v2.16.1
+        with:
+          GH_TOKEN: ${{ github.token }}
+          files: testresults.xml
+      - run: ls
+      - run: cat coverage.xml
+      - run: cat testresults.xml
+      - name: Run Codacy Analysis CLI
+        uses: codacy/codacy-analysis-cli-action@master
+        with:
+          output: results.sarif
+          format: sarif
+          # Adjust severity of non-security issues
+          gh-code-scanning-compat: true
+          # Force 0 exit code to allow SARIF file generation
+          # This will hand over control about PR rejection to the GitHub side
+          max-allowed-issues: 2147483647
+      - name: Upload SARIF results file
+        uses: github/codeql-action/upload-sarif@main
+        with:
+          sarif_file: results.sarif
