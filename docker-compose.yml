@@ -1,0 +1,24 @@
+version: '3'
+
+services:
+  postgres-api:
+    image: postgres:16
+    container_name: service-bridge-omnibus
+    ports:
+      - '5555:5432'
+    environment:
+      POSTGRES_DB: 'servicebridge'
+      POSTGRES_USER: 'servicebridge'
+      POSTGRES_PASSWORD: 'servicebridge'
+    volumes:
+      - ./.docker-data/.pg-data:/var/lib/postgresql/data
+  rabbitmq:
+    image: rabbitmq:4.0.2-management
+    container_name: servicebridge-rabbit
+    ports:
+      - '5672:5672'
+      - '15672:15672'
+    volumes:
+      - ./.docker-data/.rabbit-data:/var/lib/rabbitmq/
+      - ./.docker-data/.rabbit-log:/var/log/rabbitmq
+      - ./.rabbit-plugins:/etc/rabbitmq/enabled_plugins
