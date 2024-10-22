@@ -1,4 +1,6 @@
 import os
+from distutils.command.config import config
+
 from dotenv import load_dotenv
 from quart import Quart
 from quart_bcrypt import Bcrypt
@@ -27,11 +29,17 @@ class Config:
     BCRYPT_HANDLE_LONG_PASSWORDS = False
 
 
-class Development(Config):
+class DevConfig(Config):
     DEBUG = True
 
+class TestConfig(config):
+    DEBUG = False
+    QUART_DB_DATABASE_URL = (
+        f"postgresql://{DB_USER}:{DB_PWD}@{DB_HOST}:{DB_PORT}/servicebridge_test"
+    )
 
-class Production(Config):
+
+class ProdConfig(Config):
     SECRET_KEY = os.getenv("SECRET_KEY")
     BCRYPT_HANDLE_LONG_PASSWORDS = True
 
@@ -43,8 +51,7 @@ auth_manager = QuartAuth()
 def create_app(mode=os.getenv("MODE")):
     """In production create as app = create_app('Production')"""
     app = Quart(__name__)
-    app.config.from_object(f"config.{mode}")
-    print(app.config.get("QUART_DB_DATABASE_URL"))
+    app.config.from_object(config[mode])
     db.init_app(app)
     auth_manager.init_app(app)
     bcrypt.init_app(app)
@@ -54,3 +61,11 @@ def create_app(mode=os.getenv("MODE")):
     app.register_blueprint(auth_blueprint)
 
     return app
+
+config = {
+    "dev": DevConfig,
+    "test": TestConfig,
+    "prod": ProdConfig
+
+
+}

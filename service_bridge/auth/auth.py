@@ -1,7 +1,8 @@
 from datetime import datetime, timezone
 
 import bcrypt
-from quart import Blueprint, request, render_template_string, g
+from quart import Blueprint, request, render_template_string
+from quart_auth import AuthUser, current_user, login_required, login_user, logout_user, QuartAuth
 from quart.views import MethodView
 from auth.database_gateway import DatabaseTemplate
 from auth.user_data_gateway import UserDataGateway
@@ -72,3 +73,4 @@ class RegisterView(MethodView):
 
 
 auth_blueprint.add_url_rule("/register", view_func=RegisterView.as_view("register"))
+
