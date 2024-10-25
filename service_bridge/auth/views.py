@@ -46,7 +46,6 @@ class LoginView(MethodView):
         form_data = await request.form
         email = form_data.get("email")
         user = await UserDataGateway.get_user(email)
-        # TODO - find out why verify_password is not working
         if user and user.verify_password(form_data.get("password")):
             login_user(AuthUser(str(user.id)))
             _next = request.args.get('next')

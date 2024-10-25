@@ -20,6 +20,7 @@ class UserDataGateway:
                 INSERT INTO users (first_name, last_name, email, password, created_on, updated_on)
                 VALUES (:first_name, :last_name, :email, :password, :created_on, :updated_on)
             """
+        kwargs['created_on'] = kwargs['created_on']
         async with g.connection.transaction():
-            return await db.execute(sql, **kwargs)
+            return await g.connection.execute(sql, kwargs)
 
