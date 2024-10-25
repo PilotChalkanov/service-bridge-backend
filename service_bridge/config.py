@@ -2,12 +2,6 @@ import os
 from distutils.command.config import config
 
 from dotenv import load_dotenv
-from quart import Quart
-from quart_bcrypt import Bcrypt
-from quart_auth import QuartAuth
-
-from auth.auth import auth_blueprint
-from service_bridge.db import db
 
 load_dotenv("./.env")
 
@@ -43,29 +37,9 @@ class ProdConfig(Config):
     SECRET_KEY = os.getenv("SECRET_KEY")
     BCRYPT_HANDLE_LONG_PASSWORDS = True
 
-
-bcrypt = Bcrypt()
-auth_manager = QuartAuth()
-
-
-def create_app(mode=os.getenv("MODE")):
-    """In production create as app = create_app('Production')"""
-    app = Quart(__name__)
-    app.config.from_object(config[mode])
-    db.init_app(app)
-    auth_manager.init_app(app)
-    bcrypt.init_app(app)
-
-    from service_bridge.auth.auth import auth_blueprint
-
-    app.register_blueprint(auth_blueprint)
-
-    return app
-
 config = {
     "dev": DevConfig,
     "test": TestConfig,
     "prod": ProdConfig
-
 
 }
