@@ -1,7 +1,9 @@
-from db import db
-from service_bridge.config import create_app
+from app_factory import create_app
 
 app = create_app()
 
-if __name__ == "__main__":
+def main():
     app.run()
+
+if __name__ == "__main__":
+    main()
