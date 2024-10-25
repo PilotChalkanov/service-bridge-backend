@@ -9,7 +9,8 @@ from config import config
 
 bcrypt = Bcrypt()
 auth_manager = QuartAuth()
-db = QuartDB(migrations_folder='../database/migrations')
+db = QuartDB(migrations_folder="../database/migrations")
+
 
 def create_app(mode=os.getenv("MODE")):
     """In production create as app = create_app('Production')"""

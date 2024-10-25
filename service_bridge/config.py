@@ -26,6 +26,7 @@ class Config:
 class DevConfig(Config):
     DEBUG = True
 
+
 class TestConfig(config):
     DEBUG = False
     QUART_DB_DATABASE_URL = (
@@ -37,9 +38,5 @@ class ProdConfig(Config):
     SECRET_KEY = os.getenv("SECRET_KEY")
     BCRYPT_HANDLE_LONG_PASSWORDS = True
 
-config = {
-    "dev": DevConfig,
-    "test": TestConfig,
-    "prod": ProdConfig
 
-}
+config = {"dev": DevConfig, "test": TestConfig, "prod": ProdConfig}

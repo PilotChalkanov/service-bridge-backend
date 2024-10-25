@@ -6,21 +6,18 @@ from auth.models import User
 
 class UserDataGateway:
     @staticmethod
-    async def get_user(
-        email: str
-    ) -> Optional[User]:
+    async def get_user(email: str) -> Optional[User]:
         sql = """SELECT * FROM users WHERE email = :email"""
         async with db.connection() as conn:
             record = await conn.fetch_one(sql, {"email": email})
             return User(**dict(record)) if record else None
 
     @staticmethod
-    async def register_user( **kwargs):
+    async def register_user(**kwargs):
         sql = """
                 INSERT INTO users (first_name, last_name, email, password, created_on, updated_on)
                 VALUES (:first_name, :last_name, :email, :password, :created_on, :updated_on)
             """
-        kwargs['created_on'] = kwargs['created_on']
+        kwargs["created_on"] = kwargs["created_on"]
         async with g.connection.transaction():
             return await g.connection.execute(sql, kwargs)
-

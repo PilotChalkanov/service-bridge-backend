@@ -23,7 +23,9 @@ class User:
 
     def __post_init__(self):
         # Hash the password when the object is created
-        self.password = bcrypt.generate_password_hash(self.password.encode('utf-8')).decode('utf-8')
+        self.password = bcrypt.generate_password_hash(
+            self.password.encode("utf-8")
+        ).decode("utf-8")
 
     def verify_password(self, password):
         return bcrypt.check_password_hash(self.password, password)
