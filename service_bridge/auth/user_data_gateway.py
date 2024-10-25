@@ -1,22 +1,25 @@
 from typing import Optional
-
-from auth.database_gateway import DatabaseTemplate
-from auth.models import UserModel, UserSchema
+from quart import g
+from app_factory import db
+from auth.models import User
 
 
 class UserDataGateway:
     @staticmethod
     async def get_user(
-        username: str, db_template: DatabaseTemplate
-    ) -> Optional[UserModel]:
-        sql = "SELECT * FROM users WHERE username = $1"
-        record = await db_template.fetch_one(sql, username=username)
-        return UserSchema.load(dict(record)) if record else None
+        email: str
+    ) -> Optional[User]:
+        sql = """SELECT * FROM users WHERE email = :email"""
+        async with db.connection() as conn:
+            record = await conn.fetch_one(sql, {"email": email})
+            return User(**dict(record)) if record else None
 
     @staticmethod
-    async def register_user(db_template: DatabaseTemplate, **kwargs):
+    async def register_user( **kwargs):
         sql = """
-                INSERT INTO users (username, password, email, first_name, last_name)
-                VALUES ($1, $2, $3, $4, $5)
+                INSERT INTO users (first_name, last_name, email, password, created_on, updated_on)
+                VALUES (:first_name, :last_name, :email, :password, :created_on, :updated_on)
             """
-        return await db_template.execute(sql, **kwargs)
+        async with g.connection.transaction():
+            return await db.execute(sql, **kwargs)
+
