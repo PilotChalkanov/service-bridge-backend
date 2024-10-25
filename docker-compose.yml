@@ -1,7 +1,7 @@
 version: '3'
 
 services:
-  postgres-api:
+  pg-db:
     image: postgres:16
     container_name: service-bridge-omnibus
     ports:
@@ -22,3 +22,14 @@ services:
       - ./.docker-data/.rabbit-data:/var/lib/rabbitmq/
       - ./.docker-data/.rabbit-log:/var/log/rabbitmq
       - ./.rabbit-plugins:/etc/rabbitmq/enabled_plugins
+
+  service-bridge:
+    build: .
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./:/service_bridge
+    links:
+      - pg-db:postgres
+      - rabbitmq:rabbitmq
+    container_name: service_bridge_1
