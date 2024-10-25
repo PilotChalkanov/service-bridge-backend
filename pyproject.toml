@@ -32,4 +32,4 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
-run-server = "service_bridge.app:run"
+run-server = "service_bridge.app:main"
