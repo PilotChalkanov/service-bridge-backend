@@ -33,3 +33,8 @@ services:
       - pg-db:postgres
       - rabbitmq:rabbitmq
     container_name: service_bridge_1
+    depends_on:
+      - pg-db
+      - rabbitmq
+    stdin_open: true
+    tty: true
