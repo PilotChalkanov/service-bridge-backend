@@ -3,7 +3,7 @@ version: '3'
 services:
   pg-db:
     image: postgres:16
-    container_name: service-bridge-omnibus
+    container_name: service-bridge-db
     ports:
       - '5555:5432'
     environment:
@@ -38,3 +38,5 @@ services:
       - rabbitmq
     stdin_open: true
     tty: true
+    environment:
+      QUART_APP: app.py
